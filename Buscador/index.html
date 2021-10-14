@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Buscador</title>
+	<script src="res/js/jquery.js"></script>
+	<script src="res/js/jquery.dataTables.min.js"></script>
+	<link rel="stylesheet" href="res/css/estilos.css">
+</head>
+<body>
+	<header>
+		<!-- <img src="./res/images/logo.jpeg" alt="logo here" width="20%" class="logo"> -->
+		 <img src="./res/images/google.svg" alt="logo here" width="20%" class="logo"> 
+		<div class="header-top">
+			<div class="box">
+				<input type="image" name="search-boton" src="./res/images/search.jpeg" alt="icon-search"  class="icon-search">
+				<input type="search" name="search-text" class="tsearch" placeholder="Buscar . . ." id="inputBusqueda">
+			</div>
+		</div>
+		<div class="search" id="search">
+			<table class="search-table" id="searchTable">
+				<thead>
+					<tr>
+						<td></td>
+					</tr>
+				</thead>
+				<tbody id="tablaprueba">
+									
+				</tbody>
+			</table>
+		</div>
+	</header>
+	<div class="buscadores">
+	<label for="indice">I. Invertido</label>
+	<input type="file" name="indice" onchange="loadFile(this.files[0])"><br>
+	<label for="pagerank">Page Rank</label>
+	<input type="file" name="pagerank" onchange="loadFile2(this.files[0])">
+	</div>
+	<br>
+    <pre id="output"></pre>
+    <script>
+		var list_text;
+		var lista_word=[];
+		var lista_resultados=[];
+
+		var lista_orden =[];
+	  	var score = [];
+
+      async function loadFile(file) {
+        let text = await file.text();
+		list_text = text.split("\n");
+		for(var i =0; i<list_text.length;i++){
+			var tmp = list_text[i].split("\t");
+			lista_word.push(tmp[0]);
+			lista_resultados.push(tmp[1]);
+		}
+		
+		function dividirCadena(cadenaADividir,separador) {
+			var arrayDeCadenas = cadenaADividir.split(separador);
+			return arrayDeCadenas;
+		}
+		var espacio = " ";
+		function posicion(valor, lista){
+			for(var i =0 ;i<lista.length;i++){
+				if(valor == lista[i])
+					return i;
+			}
+
+		}
+		function ordenar(lista1, lista2){
+			var posiciones=[];
+			for(var i =0 ;i<lista1.length;i++){
+				posiciones.push(posicion(lista1[i],lista2));
+			}
+			for(var i =0 ;i<lista1.length-1;i++){
+				for(var j =i+1 ;j<lista1.length;j++){
+					if(posiciones[i]>posiciones[j]){
+						var tmp = posiciones[i];
+						posiciones[i]=posiciones[j];
+						posiciones[j] = tmp;
+						var tmp2 = lista1[i];
+						lista1[i]=lista1[j];
+						lista1[j] = tmp2;
+					}
+				}
+			}
+			return lista1;
+		}
+		
+
+		/*Tabla*/
+		function agregarFila(texto){
+			document.getElementById("tablaprueba").insertRow(-1).innerHTML = "<tr><td><a href='data2/"+texto+".html' target='_blank'>"+texto+"</a></td></tr>";
+		}
+/*
+		function eliminarFila(){
+		var table = document.getElementById("tablaprueba");
+		var rowCount = table.rows.length;
+		//console.log(rowCount);
+		
+		if(rowCount <= 1)
+			alert('No se puede eliminar el encabezado');
+		else
+			table.deleteRow(rowCount -1);
+		}*/
+		$(document).ready(function(){
+		var input;
+		function getUserInput() {
+			$('#inputBusqueda').keyup(function(){
+			this.value = this.value.toLowerCase();
+			input = $(this).val();
+			document.getElementById("tablaprueba").innerHTML="";
+			for(var i =0; i<lista_word.length;i++){
+				if(input == lista_word[i]){
+					console.log("Econtro"+lista_resultados[i]);
+					let dividido = dividirCadena(lista_resultados[i],espacio);
+					dividido = ordenar(dividido,lista_orden);
+					for(var j = 0; j<dividido.length;j++){
+						agregarFila(dividido[j]);
+					}
+					$("header").css({
+						"height": "100vh",
+						"background": "rgba(0,0,0,0.5)"
+					})
+
+					if ($("#inputBusqueda").val() == ""){
+						$("header").css({
+							"height": "auto",
+							"background": "none"
+						})
+
+						$("#search").hide()
+
+					} else {
+						$("#search").fadeIn("fast");
+					}
+				}
+			}
+			
+			})
+		}
+		
+		
+		getUserInput();
+		
+		})
+      }
+	  async function loadFile2(file) {
+        let text = await file.text();
+		var tmp = text.split("\n");
+		for(var i = 0; i<tmp.length;i++){
+			var sep = tmp[i].split("\t");
+			lista_orden.push(sep[0]);
+		}
+		
+	}
+	</script>
+</body>
+</html>
