@@ -1,9 +1,3 @@
-""" Fetch data for this assignment.
-You don't need to run this; just here for your reference.
-
-This parses https://en.wikipedia.org/wiki/List_of_computer_scientists for links to computer scientists and downloads each linked page.
-"""
-
 from  bs4 import BeautifulSoup
 import os
 import re
@@ -12,8 +6,6 @@ import time
 from urllib.request import urlretrieve
 
 def myfilter(tag):
-    """ Find <a> tags like [ <li><a href='/wiki/' ]that are inside of A-Z headings.
-    """
     def tryparent(tag):
         try:
             return re.match('[A-Z]', tag.parent.parent.previous_sibling.previous_sibling.span.text)
